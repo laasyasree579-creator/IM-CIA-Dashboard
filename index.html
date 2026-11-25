@@ -1,0 +1,691 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Forest Essentials UK Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout concept: sticky control bar over a scrolling board. Overview tiles, then risks, culture, segment scoring with live weight sliders, and a recommendation. */
+:root{
+  --bg:#faf5ea; --surface:#fffdf8; --surface-2:#f6eedb; --ink:#2e2218; --ink-2:#6b5a47; --ink-3:#8c7a64;
+  --line:#e9dcc2; --grid:#f0e6d0;
+  --brand:#D7B56D; --brand-ink:#2e2218; --brand-text:#85601c; --brand-soft:#f3e6c3; --gold:#a8802f; --mark:#b08a3a; --lead:#4b6b3c; --lead-ink:#ffffff;
+  --s1:#4b6b3c; --s2:#D7B56D;
+  --good:#3f6b32; --warn:#9a6212; --bad:#b3362f; --good-bg:#e4efdc; --warn-bg:#f8e7c4; --bad-bg:#f6dcd7;
+  --hero-a:#2a2016; --hero-b:#3b4a2f; --shadow:0 1px 2px rgba(46,34,24,.06),0 6px 18px rgba(46,34,24,.06);
+  --font-d:'Space Grotesk','Inter',system-ui,sans-serif; --font-b:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; --font-s:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#150f09; --surface:#201811; --surface-2:#2a2016; --ink:#f4ead6; --ink-2:#c6b595; --ink-3:#9a8a70;
+  --line:#3b2e20; --grid:#2e2418;
+  --brand:#D7B56D; --brand-ink:#1d150c; --brand-text:#D7B56D; --brand-soft:#352a1a; --gold:#e3c27f; --mark:#D7B56D; --lead:#9cc486; --lead-ink:#10200c;
+  --s1:#6a9658; --s2:#D7B56D;
+  --good:#8fc27a; --warn:#e0a03a; --bad:#ee8a82; --good-bg:#233a1d; --warn-bg:#46350f; --bad-bg:#4a2220;
+  --hero-a:#1b130b; --hero-b:#2d3a22; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#150f09; --surface:#201811; --surface-2:#2a2016; --ink:#f4ead6; --ink-2:#c6b595; --ink-3:#9a8a70;
+  --line:#3b2e20; --grid:#2e2418;
+  --brand:#D7B56D; --brand-ink:#1d150c; --brand-text:#D7B56D; --brand-soft:#352a1a; --gold:#e3c27f; --mark:#D7B56D; --lead:#9cc486; --lead-ink:#10200c;
+  --s1:#6a9658; --s2:#D7B56D;
+  --good:#8fc27a; --warn:#e0a03a; --bad:#ee8a82; --good-bg:#233a1d; --warn-bg:#46350f; --bad-bg:#4a2220;
+  --hero-a:#1b130b; --hero-b:#2d3a22; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+h1,h2,h3{font-family:var(--font-d);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand-text);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+/* hero */
+.hero{margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));margin-top:calc(-1*env(safe-area-inset-top,0px));
+  padding:calc(env(safe-area-inset-top,0px) + 28px) max(16px,env(safe-area-inset-left,0px)) 26px;
+  background:linear-gradient(120deg,var(--hero-a),var(--hero-b));color:#fbf3e1}
+.hero .wrap{display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#e7cf9a;font-weight:600}
+.hero h1{font-family:var(--font-s);font-size:clamp(34px,5.4vw,56px);line-height:1.04;margin:6px 0 8px;font-weight:700;letter-spacing:0}
+.hero p{margin:0;max-width:60ch;color:#eadfc6}
+.hero h1 span{display:block;color:#e7cf9a;font-size:.72em;font-weight:600;margin-top:2px}
+.hero-meta{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid rgba(215,181,109,.55);border-radius:999px;padding:5px 12px;font-size:12px;color:#f3e6c3;background:rgba(215,181,109,.1)}
+/* sticky bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  padding:10px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--hero-a)}
+.bar .wrap{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.bar button{border:0;background:transparent;padding:7px 13px;border-radius:999px;font-weight:500;color:var(--ink-2);white-space:nowrap}
+.bar button:hover{background:var(--brand-soft);color:var(--ink)}
+.bar button.on{background:var(--brand);color:var(--brand-ink)}
+section{padding-top:34px;scroll-margin-top:56px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-h h2{font-family:var(--font-s);font-size:30px;font-weight:700;letter-spacing:0}
+.sec-h p{margin:0;color:var(--ink-2);max-width:62ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px;min-width:0}
+.card h3{font-size:15px;margin-bottom:2px}
+.card .sub{color:var(--ink-3);font-size:12px;margin-bottom:12px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-side{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+@media(max-width:900px){.g2,.g3,.g-side{grid-template-columns:minmax(0,1fr)}}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+@media(max-width:900px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:left;box-shadow:var(--shadow);transition:transform .15s,border-color .15s;min-width:0}
+.tile:hover,.tile.pin{transform:translateY(-2px);border-color:var(--brand)}
+.tile .l{font-size:12px;color:var(--ink-2)}
+.tile .v{font-family:var(--font-d);font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--brand-text);line-height:1.15;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.tile .v.sm{font-size:17px;line-height:1.25;padding:6px 0}
+.tile .s{font-size:11px;color:var(--ink-3)}
+.why{margin-top:12px;min-height:40px;padding:10px 14px;border-radius:10px;background:var(--brand-soft);color:var(--ink);font-size:13px}
+/* chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:13px;color:var(--ink-2)}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:600}
+.filters{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filters label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600;margin-right:2px}
+.fgroup{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sel{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 34px 8px 14px;min-width:180px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236b5a47' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sel:hover{border-color:var(--brand)}
+.sel option{background:var(--surface);color:var(--ink)}
+/* factor cards */
+.fcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.fc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-width:0}
+.fc:hover,.fc.hl{border-color:var(--brand);box-shadow:var(--shadow)}
+.fc .top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px;display:inline-flex;gap:5px;align-items:center}
+.tag.Opportunity{background:var(--good-bg);color:var(--good)}
+.tag.Challenge{background:var(--warn-bg);color:var(--warn)}
+.tag.Risk{background:var(--bad-bg);color:var(--bad)}
+.ftype{font-size:11px;color:var(--ink-3)}
+.fc p{margin:0;font-size:13px}
+.fc .more{font-size:12px;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:8px}
+.score{font-family:var(--font-d);font-weight:700}
+.empty{padding:26px;text-align:center;color:var(--ink-3);border:1px dashed var(--line);border-radius:12px}
+/* charts */
+svg text{font-family:var(--font-b);fill:var(--ink-2);font-size:11px}
+svg .val{fill:var(--ink);font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.chart{width:100%;position:relative}
+.risk-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.rl{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface-2);text-align:left;width:100%}
+.rl:hover,.rl.hl{border-color:var(--brand)}
+.rl b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-size:12px;flex:none}
+.rl span.n{flex:1;min-width:0}
+.lvl{font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px}
+.lvl.High{background:var(--bad-bg);color:var(--bad)}.lvl.Medium{background:var(--warn-bg);color:var(--warn)}
+.insight{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;min-height:58px}
+/* segments */
+.seg-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media(max-width:900px){.seg-pick{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sp{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;text-align:left;min-width:0}
+.sp:hover{border-color:var(--brand)}
+.sp[aria-pressed="true"]{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft),var(--shadow)}
+.sp .k{font-family:var(--font-d);font-weight:700;font-size:20px;color:var(--brand-text)}
+.sp .t{font-weight:600;font-size:13px}
+.sp .d{font-size:12px;color:var(--ink-3);margin-top:3px}
+.sliders{display:grid;gap:10px}
+.sl{display:grid;grid-template-columns:128px minmax(0,1fr) 48px;align-items:center;gap:10px;font-size:13px}
+.sl input{width:100%;accent-color:var(--brand);min-width:0}
+.sl output{font-variant-numeric:tabular-nums;text-align:right;font-weight:600;color:var(--ink)}
+.rank{position:relative}
+.rk{position:absolute;left:0;right:0;height:46px;transition:transform .55s cubic-bezier(.2,.8,.2,1);display:grid;grid-template-columns:minmax(90px,170px) minmax(0,1fr) 44px;gap:10px;align-items:center;border:0;background:transparent;text-align:left;padding:0 4px;border-radius:10px}
+.rk:hover{background:var(--surface-2)}
+.rk.sel{background:var(--brand-soft)}
+.rk .nm{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .tr{height:16px;background:var(--grid);border-radius:4px;overflow:hidden}
+.rk .fl{height:100%;background:var(--brand);border-radius:0 4px 4px 0;transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.rk.lead .fl{background:var(--lead)}
+.rk .nv{font-family:var(--font-d);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--lead);color:var(--lead-ink);border-radius:4px;padding:1px 6px;margin-left:6px}
+.tbl{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:560px;font-size:13px}
+th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;font-size:12px;color:var(--ink-2);background:var(--surface-2);position:sticky;top:0}
+th button{border:0;background:none;font-weight:600;color:inherit;font-size:12px}
+td.hm{font-variant-numeric:tabular-nums;font-weight:600}
+tr.tot td{font-weight:700;background:var(--surface-2);font-family:var(--font-d)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-size:13px}
+.btn:hover{border-color:var(--brand)}
+/* reco */
+.quote{border-left:3px solid var(--brand);padding:4px 0 4px 16px;font-size:21px;line-height:1.45;margin:10px 0;font-family:var(--font-s);font-weight:600}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media(max-width:700px){.steps{grid-template-columns:minmax(0,1fr)}}
+.st{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;text-align:left}
+.st[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.st .n{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
+.st .t{font-family:var(--font-d);font-weight:600;font-size:15px}
+ul.clean{margin:0;padding-left:18px;display:grid;gap:5px}
+.decision{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+@media(max-width:900px){.decision{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dc{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:12.5px}
+.dc b{display:block;font-family:var(--font-d);margin-bottom:2px}
+.go{display:inline-block;background:var(--good-bg);color:var(--good);font-weight:700;border-radius:8px;padding:4px 12px;font-family:var(--font-d)}
+.src{columns:2 340px;column-gap:24px;font-size:12.5px;padding-left:18px;margin:0}
+.src li{break-inside:avoid;margin-bottom:6px}
+.src a{color:var(--brand-text);word-break:break-word}
+.foot{margin-top:30px;color:var(--ink-3);font-size:12px}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);padding:7px 10px;border-radius:8px;font-size:12px;max-width:260px;opacity:0;transition:opacity .1s;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#tip b{font-family:var(--font-d)}
+
+.art{flex:none;width:min(260px,100%);opacity:.95}
+.art *{fill:none;stroke:#e9d4a0;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.art .f{fill:rgba(233,212,160,.14)}
+.story{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(max-width:800px){.story{grid-template-columns:minmax(0,1fr)}}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)}
+.ic{flex:none;width:46px;height:46px;border-radius:12px;background:var(--brand-soft);display:grid;place-items:center}
+.ic svg{width:28px;height:28px}.ic svg *{fill:none;stroke:var(--brand);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic svg .g{stroke:var(--gold)}
+.sc .yr{font-family:var(--font-d);font-weight:700;color:var(--brand-text);font-size:13px;letter-spacing:.04em}
+.sc .tt{font-weight:600}
+.sc .dd{font-size:12.5px;color:var(--ink-2)}
+.diff{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+@media(max-width:900px){.diff{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.df{text-align:center;padding:14px 10px;border-radius:14px;background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--line)}
+.df .ic{margin:0 auto 8px;width:54px;height:54px;border-radius:50%}
+.df b{display:block;font-family:var(--font-d);font-size:13.5px}.df span{font-size:12px;color:var(--ink-2)}
+.band{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);font-weight:600;margin:22px 0 0}
+
+
+.sy{fill:none;stroke:var(--lead);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sy.g{stroke:var(--gold)}
+.sy.fb{fill:var(--brand-soft)}
+.sy.fg{fill:color-mix(in srgb,var(--gold) 26%,transparent);stroke:var(--gold)}
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cg fill='none' stroke='%23b8923f' stroke-opacity='.16' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M20 44c8-14 22-16 30-14-2 14-14 24-30 14z'/%3E%3Cpath d='M20 44l24-10'/%3E%3Cpath d='M100 104c8-14 22-16 30-14-2 14-14 24-30 14z'/%3E%3Cpath d='M100 104l24-10'/%3E%3Ccircle cx='108' cy='30' r='3'/%3E%3Ccircle cx='38' cy='118' r='3'/%3E%3C/g%3E%3C/svg%3E");background-size:150px 150px}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.hero{position:relative}
+.sec-t{display:flex;align-items:center;gap:14px}
+.ill{width:58px;height:58px;padding:9px;border-radius:50%;flex:none;background:radial-gradient(circle at 30% 22%,var(--surface),var(--brand-soft));border:1.5px solid color-mix(in srgb,var(--gold) 65%,transparent);box-shadow:var(--shadow);transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.sec-h:hover .ill{transform:rotate(-9deg) scale(1.08)}
+.divider{display:flex;align-items:center;gap:16px;margin-top:38px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.divider svg{width:46px;height:30px}
+.divider+section{padding-top:22px}
+.sc .ic{width:58px;height:58px;border-radius:16px;background:linear-gradient(150deg,var(--surface),var(--brand-soft))}.sc .ic svg{width:40px;height:40px}
+.df .ic{width:72px;height:72px;background:radial-gradient(circle at 30% 22%,var(--surface),var(--brand-soft));border:1.5px solid color-mix(in srgb,var(--gold) 55%,transparent)}.df .ic svg{width:46px;height:46px}
+.quotewrap{display:flex;gap:18px;align-items:center;margin:10px 0}
+.quotewrap .quote{margin:0;flex:1;min-width:0}
+.jarbox{flex:none;width:96px;text-align:center}
+.jarbox svg{width:84px;height:84px;filter:drop-shadow(0 6px 10px rgba(16,35,27,.15));animation:sway 7s ease-in-out infinite}
+.jarbox span{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
+@media(max-width:600px){.quotewrap{flex-direction:column;align-items:flex-start}}
+.wm{position:relative;overflow:hidden}
+.wm::after{content:"";position:absolute;right:-30px;bottom:-34px;width:260px;height:260px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23b8892b' stroke-opacity='.28' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M100 20c26 26 26 76 0 110-26-34-26-84 0-110z'/%3E%3Cpath d='M82 132C42 128 22 94 22 66c38 0 62 26 60 66z'/%3E%3Cpath d='M118 132c40-4 60-38 60-66-38 0-62 26-60 66z'/%3E%3Cpath d='M70 140c-30 6-52-6-60-24 30-8 54 2 60 24z'/%3E%3Cpath d='M130 140c30 6 52-6 60-24-30-8-54 2-60 24z'/%3E%3Cpath d='M40 170c40 16 80 16 120 0'/%3E%3C/g%3E%3C/svg%3E") no-repeat center/contain;pointer-events:none}
+.wm>*{position:relative;z-index:1}
+/* motion */
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+@keyframes rise{from{opacity:.6;transform:translateY(18px)}}
+@keyframes fadeo{from{opacity:0;transform:translateY(6px)}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes growx{from{transform:scaleX(0)}}
+@keyframes dash{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+@keyframes scalein{from{transform:scale(.15);opacity:0}}
+@keyframes sway{0%,100%{transform:rotate(0) translateY(0)}50%{transform:rotate(2.2deg) translateY(-5px)}}
+@keyframes artdraw{from{stroke-dashoffset:400}to{stroke-dashoffset:0}}
+.hero .eyebrow,.hero h1,.hero p,.hero-meta{animation:up .8s cubic-bezier(.2,.8,.2,1) both}
+.hero h1{animation-delay:.1s}.hero p{animation-delay:.2s}.hero-meta{animation-delay:.3s}
+.art{animation:sway 8s ease-in-out infinite;transform-origin:50% 90%}
+.art path,.art circle{stroke-dasharray:400;animation:artdraw 2.2s ease-out both}
+.tile.enter{animation:up .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*80ms)}
+.tile .v{transition:color .3s}
+.tile:hover .v{color:var(--gold)}
+.hero{background:linear-gradient(120deg,var(--hero-a),var(--hero-b) 70%,#4a5a36)}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 88% 0%,rgba(215,181,109,.22),transparent 60%);pointer-events:none}
+.hero .wrap{position:relative}
+.fc{animation:up .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*45ms);transition:border-color .2s,box-shadow .2s,transform .2s}
+.fc:hover{transform:translateY(-3px)}
+.chip,.sp,.st,.btn,.rl,.tag{transition:background .2s,color .2s,border-color .2s,transform .12s,box-shadow .2s}
+.chip:active,.sp:active,.st:active,.btn:active,.rl:active{transform:scale(.97)}
+.sp:hover,.st:hover{transform:translateY(-2px)}
+.card{transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(16,35,27,.06),0 14px 30px rgba(16,35,27,.09)}
+.sc,.df{transition:transform .25s,box-shadow .25s}.sc:hover,.df:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(16,35,27,.1)}
+.ic svg{transition:transform .35s}.sc:hover .ic svg,.df:hover .ic svg{transform:rotate(-8deg) scale(1.12)}
+.fi{animation:fadeo .4s cubic-bezier(.2,.8,.2,1) both}
+.draw .ln{stroke-dasharray:1;animation:dash 1.2s ease-out both}
+.draw .ar{animation:fade 1s .5s both}
+.draw .bar{transform-box:fill-box;transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.draw .hb{transform-box:fill-box;transform-origin:left;animation:growx .8s cubic-bezier(.2,.8,.2,1) both}
+.draw .ft{animation:fade .6s .6s both}
+.draw .pop{transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+.draw .cell{animation:fade .6s both}
+.draw .rad{animation:scalein .8s cubic-bezier(.2,.8,.2,1) both}
+.rk .nv{transition:color .3s}
+#prog{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--lead));transition:width .1s linear}
+.bar button{transition:background .25s,color .25s}
+@supports (animation-timeline:view()){
+  .card,.sc,.df{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+.logo{background:#fff;border-radius:16px;padding:10px 16px;display:inline-block;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:up .8s cubic-bezier(.2,.8,.2,1) both}.logo img{display:block;height:84px;width:auto;max-width:100%}</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="sym-jar" viewBox="0 0 64 64"><rect class="sy fg" x="14" y="7" width="36" height="12" rx="3"/><path class="sy fb" d="M16 19h32v29c0 6-4 10-10 10H26c-6 0-10-4-10-10z"/><path class="sy fg" d="M32 26c6 4 8 10 0 17-8-7-6-13 0-17z"/><path class="sy g" d="M32 33v10"/><path class="sy" d="M21 13h22" opacity=".5"/></symbol>
+<symbol id="sym-mortar" viewBox="0 0 64 64"><path class="sy fb" d="M6 32h52c0 15-10 25-26 25S6 47 6 32z"/><path class="sy" d="M22 58h20"/><path class="sy g" d="M46 6L31 30"/><circle class="sy fg" cx="47" cy="5" r="3.5"/><path class="sy fg" d="M14 27c-5-6-3-13 3-15 3 6 1 12-3 15z"/><path class="sy fg" d="M25 25c-3-7 0-13 6-14 2 6-1 12-6 14z"/></symbol>
+<symbol id="sym-lotus" viewBox="0 0 64 64"><path class="sy fg" d="M32 8c8 8 8 24 0 34-8-10-8-26 0-34z"/><path class="sy fb" d="M26 42C12 40 6 28 6 20c12 0 20 8 20 22z"/><path class="sy fb" d="M38 42c14-2 20-14 20-22-12 0-20 8-20 22z"/><path class="sy fb" d="M22 46C10 48 4 42 2 36c10-2 18 2 20 10z" transform="translate(2 0)"/><path class="sy fb" d="M42 46c12 2 18-4 20-10-10-2-18 2-20 10z" transform="translate(-2 0)"/><path class="sy g" d="M14 54c12 5 24 5 36 0"/></symbol>
+<symbol id="sym-sprig" viewBox="0 0 64 64"><path class="sy" d="M10 58C22 44 34 30 52 8"/><path class="sy fb" d="M20 46c-9-1-13-8-12-16 9 1 14 8 12 16z"/><path class="sy fg" d="M30 34c-8-3-10-11-7-18 8 3 11 10 7 18z"/><path class="sy fb" d="M33 40c9 0 16-5 17-13-9-1-16 4-17 13z"/><path class="sy fg" d="M43 24c6-4 7-11 4-17-6 3-8 10-4 17z"/></symbol>
+<symbol id="sym-arch" viewBox="0 0 64 64"><path class="sy fb" d="M6 56V27l26-15 26 15v29z"/><path class="sy g" d="M15 56V40a7 7 0 0 1 14 0v16M35 56V40a7 7 0 0 1 14 0v16"/><path class="sy" d="M3 56h58"/><circle class="sy fg" cx="32" cy="25" r="4"/></symbol>
+<symbol id="sym-link" viewBox="0 0 64 64"><circle class="sy fb" cx="23" cy="32" r="17"/><circle class="sy fg" cx="41" cy="32" r="17"/><path class="sy" d="M32 22v20M27 28l5-6 5 6"/></symbol>
+<symbol id="sym-flower" viewBox="0 0 64 64"><path class="sy fb" d="M32 30C21 22 21 11 32 6c11 5 11 16 0 24z"/><path class="sy fg" d="M32 30C21 22 21 11 32 6c11 5 11 16 0 24z" transform="rotate(90 32 32)"/><path class="sy fb" d="M32 30C21 22 21 11 32 6c11 5 11 16 0 24z" transform="rotate(180 32 32)"/><path class="sy fg" d="M32 30C21 22 21 11 32 6c11 5 11 16 0 24z" transform="rotate(270 32 32)"/><circle class="sy fg" cx="32" cy="32" r="5"/></symbol>
+<symbol id="sym-book" viewBox="0 0 64 64"><path class="sy fb" d="M6 14c9-4 18-3 26 2v38c-8-5-17-6-26-2z"/><path class="sy fg" d="M58 14c-9-4-18-3-26 2v38c8-5 17-6 26-2z"/><path class="sy g" d="M40 25c5-1 10 0 13 2M40 33c5-1 10 0 13 2"/></symbol>
+<symbol id="sym-cart" viewBox="0 0 64 64"><path class="sy fb" d="M5 12h9l6 26h28l6-20H17z"/><circle class="sy fg" cx="24" cy="49" r="4"/><circle class="sy fg" cx="44" cy="49" r="4"/></symbol>
+<symbol id="sym-route" viewBox="0 0 64 64"><path class="sy g" d="M6 47l16-16 10 8 24-26"/><path class="sy g" d="M44 13h12v12"/><path class="sy" d="M6 58h52"/><circle class="sy fg" cx="22" cy="31" r="3.5"/><circle class="sy fg" cx="32" cy="39" r="3.5"/></symbol>
+<symbol id="sym-gold" viewBox="0 0 64 64"><circle class="sy fg" cx="32" cy="32" r="18"/><circle class="sy g" cx="32" cy="32" r="10"/><path class="sy g" d="M32 5v8M32 51v8M5 32h8M51 32h8M13 13l6 6M45 45l6 6M51 13l-6 6M13 51l6-6"/></symbol>
+<symbol id="sym-eye" viewBox="0 0 64 64"><path class="sy fb" d="M3 32C12 18 22 12 32 12s20 6 29 20c-9 14-19 20-29 20S12 46 3 32z"/><circle class="sy fg" cx="32" cy="32" r="10"/><circle class="sy" cx="32" cy="32" r="3.5"/></symbol>
+</defs></svg>
+<header class="hero"><div class="wrap">
+  <div style="flex:1;min-width:260px">
+    <div class="eyebrow">CIA I · Global Market Explorer</div>
+    <h1>Forest Essentials<span>United Kingdom</span></h1>
+  </div>
+  <div class="hero-meta" style="width:100%"><span class="pill">Indian brand → UK market</span><span class="pill">Product: Soundarya range</span><span class="pill">Sources checked: ONS · GOV.UK · trade press</span></div>
+</div></header>
+
+<nav class="bar" aria-label="Sections"><div class="wrap" id="nav"></div><div id="prog"></div></nav>
+
+<main class="wrap">
+<section id="overview">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-jar"/></svg><h2>UK at a glance</h2></div><p>Hover or tap a tile to see why the number matters for a premium Indian skincare brand.</p></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="why" id="why">Tap any tile.</div>
+  <div class="band">The brand in the UK</div>
+  <div class="story">
+    <div class="sc"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-cart"/></svg></div><div><div class="yr">OCTOBER 2021</div><div class="tt">Online launch</div><div class="dd">First international retail partner: LookFantastic. Executive director Samrath Bedi called the UK one of its largest online markets outside India.</div></div></div>
+    <div class="sc"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-arch"/></svg></div><div><div class="yr">NOVEMBER 2022</div><div class="tt">Covent Garden store</div><div class="dd">First standalone international store, at 28 James Street, London.</div></div></div>
+    <div class="sc"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-route"/></svg></div><div><div class="yr">15 JULY 2026</div><div class="tt">India–UK CETA in force</div><div class="dd">99% of Indian goods now enter the UK duty free or at reduced tariffs.</div></div></div>
+  </div>
+  <div class="diff">
+    <div class="df"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-lotus"/></svg></div><b>Ayurvedic roots</b><span>The heritage story</span></div>
+    <div class="df"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-sprig"/></svg></div><b>Local plants and herbs</b><span>Support communities</span></div>
+    <div class="df"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-gold"/></svg></div><b>24-karat gold</b><span>Soundarya range</span></div>
+    <div class="df"><div class="ic"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-eye"/></svg></div><b>Five-senses store</b><span>Designed for the senses</span></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>UK real GDP growth by quarter</h3><div class="sub">% change on the previous quarter, Q1 2025 to Q3 2026 · ONS</div><div class="chart" id="gdp"></div></div>
+    <div class="card"><h3>Beauty growth indicators</h3><div class="sub">Year-on-year growth · Barclays via BeautyMatter, Mintel</div><div class="chart" id="growth"></div></div>
+  </div>
+</section>
+
+<section id="risks">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-mortar"/></svg><h2>Opportunities, challenges and risks</h2></div><p>Choose a PESTEL factor and a kind from the dropdowns. The risk matrix scores likelihood × impact (1 to 5 each).</p></div>
+  <div class="filters">
+    <div class="fgroup"><label>Factor</label><select class="sel" id="fType" aria-label="PESTEL factor"></select></div>
+    <div class="fgroup"><label>Kind</label><select class="sel" id="fKind" aria-label="Kind"></select></div>
+  </div>
+  <div class="grid g-side">
+    <div>
+      <div class="muted" id="fCount" style="color:var(--ink-3);font-size:12px;margin-bottom:8px"></div>
+      <div class="fcards" id="fcards"></div>
+    </div>
+    <div class="card"><h3>Risk matrix</h3><div class="sub">Each numbered dot is a risk. Red zone: score 12 or more · amber: 8 to 11.</div>
+      <div class="chart" id="matrix"></div><div class="risk-list" id="riskList"></div></div>
+  </div>
+</section>
+
+<section id="culture">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-link"/></svg><h2>Cultural comparison: India and the UK</h2></div><p>Hofstede scores (0 to 100). Select a dimension to read what it means for how the brand should speak.</p></div>
+  <div class="grid g-side">
+    <div class="card"><div class="chart" id="culChart"></div>
+      <div class="legend"><span><i style="background:var(--s2)"></i>India</span><span><i style="background:var(--s1)"></i>UK</span></div></div>
+    <div class="card"><h3 id="culTitle"></h3><div class="sub">What it means</div><div id="culText" style="font-size:14px"></div>
+      <div class="insight" style="margin-top:16px">These are national averages, so they show tendencies, not every shopper. Scores come from secondary Hofstede tables (SALTO for the UK, AFS for India).</div></div>
+  </div>
+</section>
+
+<section id="segments">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-flower"/></svg><h2>Segment scoring</h2></div><p>Pick a segment, then drag the weight sliders. Totals, ranking and the recommendation recalculate live.</p></div>
+  <div class="seg-pick" id="segPick"></div>
+  <div class="grid g-side">
+    <div class="card"><h3>Weighted total by segment</h3><div class="sub">Out of 5 · click a row to select it</div>
+      <div class="rank" id="rank"></div>
+      <div class="insight" id="sens"></div></div>
+    <div class="card"><h3>Criteria weights</h3><div class="sub">Drag to change what matters. Weights are rescaled to add up to 100%.</div>
+      <div class="sliders" id="sliders"></div>
+      <div class="btns"><button class="btn" data-p="base">Base case</button><button class="btn" data-p="fit">Brand-fit heavy</button><button class="btn" data-p="reach">Reach heavy</button><button class="btn" data-p="eq">Equal weights</button></div></div>
+  </div>
+  <div class="grid g-side" style="margin-top:14px">
+    <div class="card"><h3 id="radarTitle">Profile</h3><div class="sub">Score on each criterion (1 poor, 5 excellent). Dashed outline: current leader.</div><div class="chart" id="radar"></div>
+      <div class="legend" id="radarLeg"></div><div class="insight" id="segText"></div></div>
+    <div class="card"><h3>Score matrix</h3><div class="sub">Darker cell = higher score · click a column header to select</div><div class="tbl" id="tbl"></div></div>
+  </div>
+</section>
+
+<section id="reco">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-lotus"/></svg><h2>Recommendation</h2></div><p>Decision, positioning and a three-step entry plan for the UK.</p></div>
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="go">Decision: Go</span><span style="color:var(--ink-2)">Deepen the UK presence. Treat it as the brand's Western base market.</span></div>
+    <div class="decision">
+      <div class="dc"><b>Proven foothold</b>LookFantastic online since 2021, Covent Garden store since 2022.</div>
+      <div class="dc"><b>Trade deal</b>CETA in force 15 July 2026 removes most duties on Indian goods.</div>
+      <div class="dc"><b>Spend holds up</b>Health and beauty spend rose 10.7% in 2025 despite 3.6% inflation.</div>
+      <div class="dc"><b>Clear target</b><span id="recTarget"></span></div>
+    </div>
+    <h3 style="margin-top:20px;font-size:14px">Positioning statement</h3>
+    <div class="quotewrap"><div class="jarbox"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-jar"/></svg><span>Soundarya</span></div><div class="quote">“For urban, wellness-minded professionals in the UK who want skincare that is both natural and genuinely luxurious, Forest Essentials Soundarya is the authentic Indian Ayurvedic skincare range that turns a daily routine into a sensory ritual. Unlike mass-market natural brands that rely on vague ‘clean’ claims, or clinical brands that offer results without tradition, it is rooted in Ayurvedic principles and real ingredients.”</div></div>
+    <h3 style="margin:20px 0 10px;font-size:14px">Entry strategy</h3>
+    <div class="steps" id="steps"></div>
+    <div class="insight" id="stepText"></div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="sec-h"><div class="sec-t"><svg class="ill" viewBox="0 0 64 64" aria-hidden="true"><use href="#sym-book"/></svg><h2>Sources</h2></div><p>Official sources first, then trade press and market reports.</p></div>
+  <div class="card"><ol class="src" id="srcList"></ol></div>
+  <p class="foot">Likelihood, impact, segment scores and weights are the report's own judgement, not measured data. The first segment weights match the written report; the sliders let you test other views. Figures were checked against the sources above.</p>
+</section>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const el=(t,a={},h='')=>{const e=document.createElement(t);for(const k in a)e.setAttribute(k,a[k]);e.innerHTML=h;return e};
+const NS='http://www.w3.org/2000/svg';
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- data ---------- */
+const TILES=[
+ {l:'UK GDP growth, Q3 2026',v:'0.7%',s:'ONS',w:'The economy is growing, but slowly (1.9% on the year), so households are cautious.'},
+ {l:'UK CPI inflation, Oct 2026',v:'3.6%',s:'ONS',w:'Prices are still rising, so shoppers watch what they spend. Price pressure is the top-rated risk.'},
+ {l:'Health and beauty spend, 2025',v:'10.7%',s:'Barclays via BeautyMatter',w:'Beauty held up better than most categories, after 7.1% growth in 2024.'},
+ {l:'Organic beauty sales, 2024',v:'11%',s:'Mintel / Soil Association',w:'Natural beauty is gaining ground (£151 million), but Mintel warns that "natural" alone no longer wins people over.'},
+ {l:'Online beauty retail, 2025',v:'7%',s:'Mintel',w:'Digital shopping is growing, and online shelves are crowded, so a ritual-based brand has to explain itself.'},
+ {l:'Indian ethnic group share',v:'3.1%',s:'ONS Census 2021, as reported',w:'About 1.8 million people in England and Wales, a large and well-educated community that already knows Ayurveda.'},
+ {l:'India–UK trade, 2025',v:'£48bn',s:'GOV.UK',w:'About 64% is services. The CETA, in force since 15 July 2026, lowers goods tariffs further.'}
+];
+const GDP=[['Q1 25',0.6],['Q2 25',0.0],['Q3 25',0.2],['Q4 25',0.0],['Q1 26',0.6],['Q2 26',0.5],['Q3 26',0.7]];
+const GROWTH=[['Health and beauty spend, 2024',7.1,'Barclays via BeautyMatter'],['Health and beauty spend, 2025',10.7,'Barclays via BeautyMatter'],['Organic beauty sales, 2024',11,'Mintel'],['Online beauty retail, 2025',7,'Mintel']];
+const TYPES=['All','Economic','Social','Legal','Environmental','Technological','Political'];
+const KINDS=['All','Opportunity','Challenge','Risk'];
+const FACTORS=[
+ {t:'Economic',k:'Opportunity',d:'UK health and beauty spending up 10.7% in 2025, after 7.1% in 2024',s:'Barclays data via BeautyMatter',m:'Spending has grown for 60 months in a row.'},
+ {t:'Economic',k:'Risk',n:'Price pressure from inflation',d:'Inflation of 3.6% (Oct 2026) squeezes premium buyers',L:4,I:3,s:'ONS; Mintel',m:'Mintel notes price is top of mind for natural buyers.'},
+ {t:'Economic',k:'Risk',n:'Competition from larger groups',d:'Larger groups are expanding premium and science-led brands',L:4,I:3,s:'Euromonitor, Skin Care in the UK',m:'L\'Oréal and Unilever are growing through acquisitions.'},
+ {t:'Economic',k:'Risk',n:'Single-store concentration',d:'Covent Garden is the only standalone UK store found',L:3,I:3,s:'Glossy; Cosmetics Business',m:'One site carries the physical brand experience.'},
+ {t:'Political',k:'Opportunity',d:'India–UK CETA in force from 15 July 2026; 99% of Indian goods enter duty free or at reduced tariffs',s:'GOV.UK; Hogan Lovells',m:'Import duty is no longer a serious barrier. India is also cutting its 22% tariff on UK cosmetics in stages.'},
+ {t:'Legal',k:'Risk',n:'Regulatory non-compliance',d:'Every cosmetic needs a UK Responsible Person, Product Information File and notification',L:2,I:5,s:'GOV.UK cosmetics guidance',m:'Applies product by product, including any new range.'},
+ {t:'Legal',k:'Risk',n:'Claims substantiation',d:'Marketing claims on Ayurvedic benefits must be provable',L:2,I:4,s:'GOV.UK cosmetics guidance',m:'Traditional benefit claims need evidence behind them.'},
+ {t:'Social',k:'Opportunity',d:'About 1.8 million people of Indian ethnic group (3.1%), a well-educated community that knows Ayurveda',s:'ONS Census 2021, as reported',m:'Hindu respondents had the highest Level 4+ qualification share: 54.8% vs 33.8% overall.'},
+ {t:'Social',k:'Opportunity',d:'Organic beauty sales up 11% in 2024 (£151 million)',s:'Mintel, citing Soil Association',m:'Shoppers are moving towards natural beauty.'},
+ {t:'Social',k:'Challenge',d:'Low brand awareness outside the Indian community',s:'Report analysis',m:'Many shoppers know Ayurveda as an idea without knowing the brand.'},
+ {t:'Environmental',k:'Challenge',d:'Sustainability matters to 91% of UK beauty shoppers, but 83% want more transparency from brands',s:'Professional Beauty',m:'Claims about natural ingredients, sourcing and packaging need to be easy to check.'},
+ {t:'Technological',k:'Opportunity',d:'Online beauty retail up 7% in 2025; 34% of shoppers rely on social media for beauty trends',s:'Mintel; GlobalData (June 2025, 2,000 UK consumers)',m:'The UK entry began online, so the brand already has a digital base.'}
+];
+const RISKS=FACTORS.filter(f=>f.k==='Risk').map((f,i)=>({...f,id:i+1,score:f.L*f.I,lvl:f.L*f.I>=12?'High':f.L*f.I>=8?'Medium':'Low'}));
+const CUL=[
+ {d:'Power distance',i:77,u:35,x:'The UK is a low power-distance culture. Shoppers expect brands to speak to them as equals and are comfortable questioning claims. A Professional Beauty survey found 91% say sustainability matters but 83% want more transparency.'},
+ {d:'Individualism',i:48,u:89,x:'UK shoppers respond to personal wellbeing and self-care messages. India scores much lower, which fits the family-centred traditions and gifting that make Ayurveda familiar to many British Indians.'},
+ {d:'Masculinity',i:56,u:66,x:'Both countries sit in the middle to upper-middle of the scale and the gap is small, so the report draws no strong conclusion from this dimension.'},
+ {d:'Uncertainty avoidance',i:40,u:35,x:'Both countries score low, so shoppers on each side are fairly open to trying new things.'}
+];
+const CRIT=['Segment size','Ability to pay','Fit with brand','Ease of reaching them','Growth potential','Low competition'];
+const SEG=[
+ {k:'A',n:'British Indian professionals',sh:'British Indian',d:'Professionals and families aged about 28 to 50 who already know Ayurveda and have above-average education and income.',sc:[3,4,5,4,3,4],note:'Highest brand fit. Smaller group, so reach is limited.'},
+ {k:'B',n:'Urban wellness professionals',sh:'Urban wellness',d:'Wellness-minded professionals aged about 25 to 40, from any background, who like natural and ethical beauty and follow social media trends.',sc:[5,3,4,4,5,2],note:'Biggest and fastest-growing group. Crowded: every natural and premium brand is chasing it.'},
+ {k:'C',n:'Premium gift buyers',sh:'Gift buyers',d:'People buying for others at Christmas and Diwali who care about presentation and prestige.',sc:[3,5,4,3,3,3],note:'Strongest ability to pay, but gifting is seasonal, which limits repeat buying.'},
+ {k:'D',n:'Visitors to London',sh:'Visitors',d:'International visitors and affluent tourists in central London who may buy on impulse around Covent Garden.',sc:[2,5,3,3,2,3],note:'High spending power, but the hardest group to turn into repeat customers.'}
+];
+const PRESET={base:[20,20,20,15,15,10],fit:[10,20,30,15,15,10],reach:[15,15,15,30,15,10],eq:[17,17,17,17,16,16]};
+const STEPS=[
+ {n:'Months 0 to 12',t:'Make existing channels work harder',b:['Clearer online content that explains Ayurveda and ingredients simply','Campaigns around Christmas and Diwali gifting','Community events that bring British Indian customers in as early advocates','A compliance check on every product before any new line launches']},
+ {n:'Next',t:'Trial premium partnerships',b:['A small number of partnerships with premium retailers, spas or hotels','Ayurvedic brands from India are already found in top hotels worldwide']},
+ {n:'Later',t:'Consider a second store',b:['Only if Covent Garden shows steady repeat buying','Track: share of new customers from outside the diaspora, repeat purchase rate, online sales growth']}
+];
+const SRC=[
+['ONS, GDP first quarterly estimate, UK: July to September 2026','https://www.ons.gov.uk/economy/grossdomesticproductgdp/bulletins/gdpfirstquarterlyestimateuk/julytoseptember2026'],
+['ONS, Inflation and price indices (CPI, October 2026)','https://www.ons.gov.uk/economy/inflationandpriceindices'],
+['GOV.UK, Historic UK-India Free Trade Agreement is now in effect','https://www.gov.uk/government/news/historic-uk-india-free-trade-agreement-is-now-in-effect'],
+['GOV.UK, Making cosmetic products available to consumers in Great Britain','https://www.gov.uk/guidance/making-cosmetic-products-available-to-consumers-in-great-britain'],
+['Department for Business and Trade, India trade and investment factsheet (31 July 2026)','https://assets.publishing.service.gov.uk/media/6a69cc36f23ff62c51c1a7ff/india-trade-and-investment-factsheet-2026-07-31.pdf'],
+['Hofstede scores (UK), SALTO','https://www.salto-youth.net/downloads/toolbox_tool_download-file-699/hofstede'],
+['Hofstede scores (India), AFS','https://myafshelp.afsusa.org/hc/en-us/article_attachments/115023583147'],
+['Hogan Lovells, UK and India free trade agreement enters into force','https://www.hlc.com/en/publications/uk-and-india-free-trade-agreement-enters-into-force'],
+['BeautyMatter, Five forces reshaping beauty\'s retail growth strategy (Barclays data)','https://beautymatter.com/articles/five-forces-reshaping-beautys-retail-growth-strategy'],
+['Glossy, Forest Essentials opens first international store in London','https://www.glossy.co/beauty/ayurvedic-beauty-brand-forest-essentials-opens-first-international-store-in-london/'],
+['Cosmetics Business, Forest Essentials to open first flagship UK store','https://www.cosmeticsbusiness.com/ayurvedic-brand-forest-essentials-to-open-first-flagship-uk-store-204129'],
+['Cosmetics Business, Forest Essentials enters UK with Lookfantastic','https://cosmeticsbusiness.com/forest-essentials-marks-entry-into-first-international-market-with-uk-partner-lookfantastic--180105'],
+['Mintel, UK Attitudes towards Natural and Organic BPC Consumer Report 2025','https://store.mintel.com/report/uk-attitudes-towards-natural-and-organic-bpc-market-report'],
+['Mintel, UK Online Beauty and Personal Care Retailing Market Report 2025','https://store.mintel.com/report/uk-online-beauty-personal-care-retailing-market-report'],
+['Professional Beauty, Sustainability important to 91% of UK beauty consumers','https://professionalbeauty.co.uk/site/newsdetails/sustainability-important-british-beauty-consumers'],
+['Retail Insight Network, GlobalData survey on social media and beauty trends','https://www.retail-insight-network.com/?p=110564'],
+['CEW UK, Circana update on UK beauty sector','https://cewuk.co.uk/circana-update-uk-beauty-sector-defies-economic-pressures-as-consumers-prioritise-self-care-and-wellness/'],
+['Retail Focus, MATIERE PREMIERE opens in Covent Garden (Shaftesbury Capital comment)','https://retail-focus.co.uk/?p=23955'],
+['Scroll.in, Indian-origin persons remain largest non-White ethnic group in UK (2021 Census)','https://scroll.in/latest/1038640/scroll_in'],
+['Pravasi Samwad, ONS Census 2021 findings on religion and qualifications','https://pravasisamwad.com/?p=21798'],
+['Euromonitor International, Skin Care in the United Kingdom','https://www.euromonitor.com/skin-care-in-the-united-kingdom/report']];
+
+/* ---------- state ---------- */
+const S={type:'All',kind:'All',seg:1,pts:[...PRESET.base],cul:1,step:0,riskHl:null};
+
+
+const SEEN=new Set();
+const chartIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;chartIO.unobserve(e.target);if(!SEEN.has(id)){SEEN.add(id);const sv=e.target.querySelector('svg');if(sv)sv.classList.add('draw')}}}),{threshold:.2});
+function arm(c){if(!SEEN.has(c.id))chartIO.observe(c)}
+function fadeIn(e){e.classList.remove('fi');void e.offsetWidth;e.classList.add('fi')}
+function countUp(node,final){const m=final.match(/^(£?)([\d.]+)(.*)$/);if(!m){node.textContent=final;return}
+  const dec=(m[2].split('.')[1]||'').length,to=parseFloat(m[2]),t0=performance.now(),dur=1100;
+  (function f(t){const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);node.textContent=m[1]+(to*e).toFixed(dec)+m[3];if(p<1)requestAnimationFrame(f)})(t0)}
+addEventListener('scroll',()=>{const h=document.documentElement;$('#prog').style.width=(100*scrollY/Math.max(1,h.scrollHeight-innerHeight))+'%'},{passive:true});
+
+/* ---------- tooltip ---------- */
+const tip=$('#tip');
+function showTip(html,x,y){tip.innerHTML=html;tip.style.opacity=1;const w=tip.offsetWidth,h=tip.offsetHeight;
+  let l=x+14,t=y+14;if(l+w>innerWidth-8)l=x-w-14;if(t+h>innerHeight-8)t=y-h-14;tip.style.left=Math.max(8,l)+'px';tip.style.top=Math.max(8,t)+'px'}
+function hideTip(){tip.style.opacity=0}
+const svgEl=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+
+/* ---------- nav ---------- */
+const SECS=[['overview','Overview'],['risks','Risks and factors'],['culture','Culture'],['segments','Segments'],['reco','Recommendation'],['sources','Sources']];
+const nav=$('#nav');
+SECS.forEach(([id,n])=>{const b=el('button',{'data-id':id},n);b.onclick=()=>document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});nav.appendChild(b)});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.id===e.target.id))}})},{rootMargin:'-35% 0px -60% 0px'});
+SECS.forEach(([id])=>io.observe(document.getElementById(id)));
+nav.firstChild.classList.add('on');
+
+/* ---------- segment maths ---------- */
+function weights(){const s=S.pts.reduce((a,b)=>a+b,0)||1;return S.pts.map(p=>p/s)}
+function totals(){const w=weights();return SEG.map(g=>g.sc.reduce((a,v,i)=>a+v*w[i],0))}
+function ranks(){const t=totals();return t.map((v,i)=>1+t.filter(o=>o>v+1e-9).length)}
+function leader(){const t=totals();return t.indexOf(Math.max(...t))}
+
+/* ---------- tiles ---------- */
+const tiles=$('#tiles');
+let tileRec=null;
+function renderTiles(){
+  const rec={l:'Recommended segment',v:SEG[leader()].n,s:'Highest weighted total',w:'Changes with the sliders in the Segments section.',sm:true};
+  if(tileRec){tileRec.node.textContent=rec.v;tileRec.data.v=rec.v;return}
+  tiles.innerHTML='';
+  const all=TILES.concat([rec]);
+  all.forEach((t,i)=>{
+    const b=el('button',{class:'tile enter',style:'--i:'+i,'aria-label':t.l+': '+t.v},`<div class="l">${t.l}</div><div class="v${t.sm?' sm':''}">${t.sm?t.v:'0'}</div><div class="s">${t.s}</div>`);
+    const v=b.querySelector('.v');if(t.sm)tileRec={node:v,data:t};else setTimeout(()=>countUp(v,t.v),250+i*80);
+    const open=()=>{tiles.querySelectorAll('.tile').forEach((x,j)=>x.classList.toggle('pin',j===i));const w=$('#why');w.innerHTML=`<b>${t.l}:</b> ${t.sm?'Currently '+tileRec.data.v+'. ':''}${t.w}`;fadeIn(w)};
+    b.onmouseenter=open;b.onfocus=open;b.onclick=open;tiles.appendChild(b)});
+  $('#why').innerHTML=`<b>${TILES[2].l}:</b> ${TILES[2].w}`;
+}
+
+/* ---------- charts ---------- */
+function mount(id){const c=$('#'+id);c.innerHTML='';return c}
+function drawGdp(){
+  const c=mount('gdp'),W=Math.max(280,c.clientWidth),H=240,m={l:34,r:28,t:16,b:26};
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Line chart of UK quarterly GDP growth'},c);
+  const x=i=>m.l+(W-m.l-m.r)*i/(GDP.length-1),y=v=>H-m.b-(H-m.t-m.b)*v/0.8;
+  [0,0.2,0.4,0.6,0.8].forEach(v=>{svgEl('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:css('--grid'),'stroke-width':1},svg);
+    svgEl('text',{x:m.l-6,y:y(v)+4,'text-anchor':'end'},svg).textContent=v.toFixed(1)});
+  const pts=GDP.map((g,i)=>[x(i),y(g[1])]);
+  const area=svgEl('path',{class:'ar',d:`M${pts[0][0]},${y(0)} `+pts.map(p=>`L${p[0]},${p[1]}`).join(' ')+` L${pts[pts.length-1][0]},${y(0)} Z`,fill:css('--brand'),opacity:.3},svg);
+  svgEl('path',{class:'ln',pathLength:1,d:'M'+pts.map(p=>p.join(',')).join(' L'),fill:'none',stroke:css('--mark'),'stroke-width':2.5,'stroke-linejoin':'round'},svg);
+  GDP.forEach((g,i)=>svgEl('text',{x:x(i),y:H-8,'text-anchor':'middle'},svg).textContent=g[0]);
+  const last=pts[pts.length-1];
+  svgEl('circle',{class:'pop',cx:last[0],cy:last[1],r:5,fill:css('--mark'),stroke:css('--surface'),'stroke-width':2},svg);
+  const lt=svgEl('text',{x:last[0],y:last[1]-10,'text-anchor':'end',class:'val ft'},svg);lt.textContent='0.7%';
+  const cross=svgEl('line',{y1:m.t,y2:H-m.b,stroke:css('--ink-3'),'stroke-dasharray':'3 3',opacity:0},svg);
+  const dot=svgEl('circle',{r:6,fill:css('--gold'),stroke:css('--surface'),'stroke-width':2,opacity:0},svg);
+  const hit=svgEl('rect',{x:m.l,y:0,width:W-m.l-m.r,height:H,fill:'transparent'},svg);
+  hit.addEventListener('pointermove',e=>{const r=svg.getBoundingClientRect();const px=(e.clientX-r.left)*W/r.width;
+    let i=Math.round((px-m.l)/((W-m.l-m.r)/(GDP.length-1)));i=Math.max(0,Math.min(GDP.length-1,i));
+    cross.setAttribute('x1',x(i));cross.setAttribute('x2',x(i));cross.setAttribute('opacity',1);dot.setAttribute('cx',x(i));dot.setAttribute('cy',y(GDP[i][1]));dot.setAttribute('opacity',1);
+    showTip(`<b>${GDP[i][0]}</b><br>${GDP[i][1].toFixed(1)}% on the previous quarter`,e.clientX,e.clientY)});
+  hit.addEventListener('pointerleave',()=>{cross.setAttribute('opacity',0);dot.setAttribute('opacity',0);hideTip()});
+  arm(c);
+}
+function drawGrowth(){
+  const c=mount('growth'),W=Math.max(280,c.clientWidth),H=240,m={l:30,r:8,t:22,b:54};
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Bar chart of UK beauty growth indicators'},c);
+  const y=v=>H-m.b-(H-m.t-m.b)*v/12;
+  [0,4,8,12].forEach(v=>{svgEl('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:css('--grid')},svg);svgEl('text',{x:m.l-6,y:y(v)+4,'text-anchor':'end'},svg).textContent=v+'%'});
+  const bw=(W-m.l-m.r)/GROWTH.length;
+  GROWTH.forEach((g,i)=>{const bx=m.l+i*bw+bw*.2,w=bw*.6;
+    const r=svgEl('path',{class:'bar',style:`animation-delay:${i*110}ms`,d:`M${bx},${y(0)} V${y(g[1])+4} Q${bx},${y(g[1])} ${bx+4},${y(g[1])} H${bx+w-4} Q${bx+w},${y(g[1])} ${bx+w},${y(g[1])+4} V${y(0)} Z`,fill:css('--brand'),stroke:css('--mark'),'stroke-width':1},svg);
+    r.style.cursor='pointer';r.style.transition='opacity .15s';
+    svgEl('text',{x:bx+w/2,y:y(g[1])-6,'text-anchor':'middle',class:'val ft'},svg).textContent=g[1]+'%';
+    const SH=[['Health & beauty','spend 2024'],['Health & beauty','spend 2025'],['Organic beauty','sales 2024'],['Online beauty','retail 2025']][i];
+    const t=svgEl('text',{x:bx+w/2,'text-anchor':'middle',y:H-m.b+16},svg);
+    svgEl('tspan',{x:bx+w/2},t).textContent=SH[0];
+    svgEl('tspan',{x:bx+w/2,dy:13},t).textContent=SH[1];
+    r.addEventListener('pointermove',e=>showTip(`<b>${g[0]}</b><br>${g[1]}% growth<br><span style="opacity:.75">${g[2]}</span>`,e.clientX,e.clientY));
+    r.addEventListener('pointerleave',hideTip)});
+  arm(c);
+}
+function drawMatrix(){
+  const c=mount('matrix'),W=Math.max(260,Math.min(c.clientWidth,420)),H=W,m={l:34,b:34,t:8,r:8};
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Risk matrix of likelihood against impact'},c);
+  const cw=(W-m.l-m.r)/5,ch=(H-m.t-m.b)/5;
+  for(let L=1;L<=5;L++)for(let I=1;I<=5;I++){
+    const sc=L*I,col=sc>=12?css('--bad'):sc>=8?css('--warn'):css('--good');
+    svgEl('rect',{class:'cell',style:`animation-delay:${(L+I)*50}ms`,x:m.l+(I-1)*cw+1,y:m.t+(5-L)*ch+1,width:cw-2,height:ch-2,rx:5,fill:col,'fill-opacity':.16},svg)}
+  for(let i=1;i<=5;i++){svgEl('text',{x:m.l+(i-.5)*cw,y:H-m.b+15,'text-anchor':'middle'},svg).textContent=i;
+    svgEl('text',{x:m.l-9,y:m.t+(5-i+.5)*ch+4,'text-anchor':'end'},svg).textContent=i}
+  svgEl('text',{x:m.l+(W-m.l-m.r)/2,y:H-4,'text-anchor':'middle'},svg).textContent='Impact →';
+  const yl=svgEl('text',{transform:`translate(10,${m.t+(H-m.t-m.b)/2}) rotate(-90)`,'text-anchor':'middle'},svg);yl.textContent='Likelihood →';
+  const groups={};RISKS.forEach(r=>{(groups[r.L+'_'+r.I]=groups[r.L+'_'+r.I]||[]).push(r)});
+  RISKS.forEach(r=>{const g=groups[r.L+'_'+r.I],k=g.indexOf(r),n=g.length;
+    const cx=m.l+(r.I-.5)*cw+(k-(n-1)/2)*Math.min(26,cw/n),cy=m.t+(5-r.L+.5)*ch;
+    const hl=S.riskHl===r.id;
+    const gEl=svgEl('g',{class:'pop',style:`cursor:pointer;animation-delay:${500+r.id*120}ms`},svg);
+    svgEl('circle',{cx,cy,r:hl?15:12,fill:css('--brand'),stroke:css('--surface'),'stroke-width':2},gEl);
+    const t=svgEl('text',{x:cx,y:cy+4,'text-anchor':'middle',style:`fill:${css('--brand-ink')};font-weight:700;font-size:12px`},gEl);t.textContent=r.id;
+    gEl.addEventListener('pointermove',e=>showTip(`<b>${r.n}</b><br>Likelihood ${r.L} × impact ${r.I} = ${r.score} (${r.lvl})`,e.clientX,e.clientY));
+    gEl.addEventListener('pointerleave',hideTip);
+    gEl.addEventListener('click',()=>{S.riskHl=S.riskHl===r.id?null:r.id;renderRiskLinks()})});
+  arm(c);
+}
+function renderRiskLinks(){
+  drawMatrix();
+  const l=$('#riskList');l.innerHTML='';
+  RISKS.slice().sort((a,b)=>b.score-a.score).forEach(r=>{
+    const b=el('button',{class:'rl'+(S.riskHl===r.id?' hl':'')},`<b>${r.id}</b><span class="n">${r.n}</span><span class="score">${r.score}</span><span class="lvl ${r.lvl}">${r.lvl}</span>`);
+    b.onclick=()=>{S.riskHl=S.riskHl===r.id?null:r.id;renderRiskLinks();renderFactors()};l.appendChild(b)});
+  renderFactors();
+}
+function drawCul(){
+  const c=mount('culChart'),W=Math.max(280,c.clientWidth),rowH=84,H=CUL.length*rowH+8,m={l:8,r:36,t:4};
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Grouped bars comparing India and UK Hofstede scores'},c);
+  const x=v=>m.l+(W-m.l-m.r)*v/100;
+  [0,50,100].forEach(v=>svgEl('line',{x1:x(v),x2:x(v),y1:0,y2:H,stroke:css('--grid')},svg));
+  CUL.forEach((d,i)=>{const y0=m.t+i*rowH;const sel=S.cul===i;
+    if(sel)svgEl('rect',{x:0,y:y0,width:W,height:rowH-6,rx:10,fill:css('--brand-soft')},svg);
+    svgEl('text',{x:m.l+10,y:y0+19,style:'font-weight:600;font-size:12.5px',class:'val'},svg).textContent=d.d;
+    [[d.i,css('--s2'),30],[d.u,css('--s1'),52]].forEach(([v,col,off],k)=>{
+      svgEl('rect',{class:'hb',style:`animation-delay:${i*120+k*80}ms`,x:x(0)+6,y:y0+off,width:Math.max(2,x(v)-x(0)-6),height:15,rx:4,fill:col,stroke:'rgba(46,34,24,.3)','stroke-width':1},svg);
+      svgEl('text',{x:x(v)+6,y:y0+off+12,class:'val ft'},svg).textContent=v});
+    const hit=svgEl('rect',{x:0,y:y0,width:W,height:rowH-6,fill:'transparent',style:'cursor:pointer'},svg);
+    hit.addEventListener('click',()=>{S.cul=i;renderCul()});
+    hit.addEventListener('pointermove',e=>showTip(`<b>${d.d}</b><br>India ${d.i} · UK ${d.u}<br>Gap: ${Math.abs(d.u-d.i)} points`,e.clientX,e.clientY));
+    hit.addEventListener('pointerleave',hideTip)});
+  arm(c);
+}
+function renderCul(){drawCul();const d=CUL[S.cul];$('#culTitle').textContent=d.d+': India '+d.i+', UK '+d.u;$('#culText').textContent=d.x;fadeIn($('#culTitle'));fadeIn($('#culText'))}
+
+/* ---------- factor cards ---------- */
+function chipRow(id,list,key,cb){const w=$('#'+id);w.innerHTML='';list.forEach(v=>{const o=el('option',{value:v},v);if(S[key]===v)o.selected=true;w.appendChild(o)});w.value=S[key];w.onchange=()=>{S[key]=w.value;cb()}}
+function renderFactors(){
+  chipRow('fType',TYPES,'type',renderFactors);chipRow('fKind',KINDS,'kind',renderFactors);
+  const list=FACTORS.filter(f=>(S.type==='All'||f.t===S.type)&&(S.kind==='All'||f.k===S.kind));
+  const o=list.filter(f=>f.k==='Opportunity').length,c=list.filter(f=>f.k==='Challenge').length,r=list.filter(f=>f.k==='Risk').length;
+  $('#fCount').textContent=`Showing ${list.length} of ${FACTORS.length}: ${o} ${o===1?'opportunity':'opportunities'}, ${c} ${c===1?'challenge':'challenges'}, ${r} ${r===1?'risk':'risks'}`;
+  const box=$('#fcards');box.innerHTML='';
+  if(!list.length){box.appendChild(el('div',{class:'empty'},'No factors match this combination. Try another kind or choose All.'));return}
+  const icon={Opportunity:'▲',Challenge:'■',Risk:'●'};
+  list.forEach((f,fi)=>{const rk=RISKS.find(x=>x.d===f.d);
+    const card=el('div',{class:'fc'+(rk&&S.riskHl===rk.id?' hl':''),style:'--i:'+Math.min(fi,8)},
+     `<div class="top"><span class="tag ${f.k}">${icon[f.k]} ${f.k}</span><span class="ftype">${f.t}</span></div>
+      <p><b>${f.n||''}</b>${f.n?'<br>':''}${f.d}</p>
+      ${rk?`<div class="score" style="font-size:13px">Risk score ${rk.score} <span class="lvl ${rk.lvl}">${rk.lvl}</span></div>`:''}
+      <div class="more">${f.m}<br><span style="color:var(--ink-3)">Source: ${f.s}</span></div>`);
+    box.appendChild(card)});
+}
+
+/* ---------- segments ---------- */
+function renderPick(){const w=$('#segPick');w.innerHTML='';const lead=leader();
+  SEG.forEach((g,i)=>{const b=el('button',{class:'sp','aria-pressed':S.seg===i},`<div class="k">${g.k}${i===lead?'<span class="badge">Leader</span>':''}</div><div class="t">${g.n}</div><div class="d">${g.sh} · ${totals()[i].toFixed(2)} / 5</div>`);
+    b.onclick=()=>{S.seg=i;renderSegments()};w.appendChild(b)})}
+function renderSliders(){const w=$('#sliders');if(!w.children.length){
+  CRIT.forEach((c,i)=>{const row=el('div',{class:'sl'},`<label for="sl${i}">${c}</label><input id="sl${i}" type="range" min="0" max="40" step="1" value="${S.pts[i]}"><output id="ov${i}"></output>`);
+    row.querySelector('input').addEventListener('input',e=>{S.pts[i]=+e.target.value;renderSegments(true)});w.appendChild(row)});
+  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.pts=[...PRESET[b.dataset.p]];renderSegments()})}
+  const wt=weights();CRIT.forEach((c,i)=>{$('#sl'+i).value=S.pts[i];$('#ov'+i).textContent=Math.round(wt[i]*100)+'%'})}
+function renderRank(){const w=$('#rank');const t=totals(),rk=ranks(),lead=leader();
+  w.style.height=(SEG.length*50)+'px';
+  if(!w.children.length)SEG.forEach((g,i)=>{const b=el('button',{class:'rk',id:'rk'+i},`<span class="nm"></span><span class="tr"><span class="fl" style="display:block"></span></span><span class="nv"></span>`);b.onclick=()=>{S.seg=i;renderSegments()};w.appendChild(b)});
+  SEG.forEach((g,i)=>{const b=$('#rk'+i);b.style.transform=`translateY(${(rk[i]-1)*50}px)`;b.classList.toggle('sel',S.seg===i);b.classList.toggle('lead',i===lead);
+    b.querySelector('.nm').innerHTML=`${g.k}: ${g.sh}${i===lead?'<span class="badge">Best</span>':''}`;
+    b.querySelector('.fl').style.width=(t[i]/5*100)+'%';b.querySelector('.nv').textContent=t[i].toFixed(2);
+    b.setAttribute('aria-label',`${g.n}, weighted total ${t[i].toFixed(2)}, rank ${rk[i]}`)});
+  const sorted=t.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);const gap=sorted[0][0]-sorted[1][0];
+  const L=SEG[sorted[0][1]],R=SEG[sorted[1][1]];const matches=sorted[0][1]===1;
+  $('#sens').innerHTML=`<b>${L.k}: ${L.sh}</b> leads on ${sorted[0][0].toFixed(2)}, ahead of <b>${R.k}: ${R.sh}</b> on ${sorted[1][0].toFixed(2)} (gap ${gap.toFixed(2)}). `+
+    (matches?'This matches the report\'s recommended target, Segment B.':'The report recommends Segment B on its base weights. Under these weights the order changes, so the choice depends on whether the brand values reach or familiarity more.')+(gap<0.15?' The gap is small, so treat this as a close call.':'');
+  $('#recTarget').textContent=SEG[1].n+' (about 25 to 40), with British Indian customers as the launch-pad.';
+}
+function renderTable(){const wt=weights();const t=totals(),rk=ranks();
+  let h='<table><thead><tr><th>Criterion</th><th>Weight</th>'+SEG.map((g,i)=>`<th><button data-s="${i}" style="${S.seg===i?'color:var(--brand-text);text-decoration:underline':''}">${g.k}: ${g.sh}</button></th>`).join('')+'</tr></thead><tbody>';
+  CRIT.forEach((c,ci)=>{h+=`<tr><td>${c}</td><td>${Math.round(wt[ci]*100)}%</td>`+SEG.map(g=>{const v=g.sc[ci];const a=(v/5)*.55+.05;return `<td class="hm" style="background:color-mix(in srgb,var(--brand) ${Math.round(a*100)}%,transparent)">${v}</td>`}).join('')+'</tr>'});
+  h+='<tr class="tot"><td>Weighted total</td><td>100%</td>'+t.map(v=>`<td>${v.toFixed(2)}</td>`).join('')+'</tr><tr class="tot"><td>Rank</td><td></td>'+rk.map(v=>`<td>${v}</td>`).join('')+'</tr></tbody></table>';
+  const w=$('#tbl');w.innerHTML=h;w.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{S.seg=+b.dataset.s;renderSegments()})}
+function drawRadar(replay){
+  const c=mount('radar'),W=Math.max(280,Math.min(c.clientWidth,520)),H=Math.min(W*.9,340),cx=W/2,cy=H/2+4,R=Math.min(W,H)/2-52;
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Radar chart of segment scores'},c);
+  const n=CRIT.length,ang=i=>-Math.PI/2+i*2*Math.PI/n,pt=(i,v)=>[cx+R*v/5*Math.cos(ang(i)),cy+R*v/5*Math.sin(ang(i))];
+  for(let r=1;r<=5;r++)svgEl('polygon',{points:CRIT.map((_,i)=>pt(i,r).join(',')).join(' '),fill:'none',stroke:css('--grid')},svg);
+  CRIT.forEach((cn,i)=>{const p=pt(i,5);svgEl('line',{x1:cx,y1:cy,x2:p[0],y2:p[1],stroke:css('--grid')},svg);
+    const q=pt(i,5.9);const tx=svgEl('text',{x:q[0],y:q[1]+4,'text-anchor':Math.abs(q[0]-cx)<6?'middle':q[0]>cx?'start':'end'},svg);tx.textContent=cn.replace('Ease of reaching them','Ease of reach')});
+  const lead=leader(),sel=S.seg;
+  if(lead!==sel)svgEl('polygon',{class:'rad',style:`transform-origin:${cx}px ${cy}px`,points:SEG[lead].sc.map((v,i)=>pt(i,v).join(',')).join(' '),fill:'none',stroke:css('--lead'),'stroke-width':2.2,'stroke-dasharray':'5 4'},svg);
+  svgEl('polygon',{class:'rad',style:`transform-origin:${cx}px ${cy}px`,points:SEG[sel].sc.map((v,i)=>pt(i,v).join(',')).join(' '),fill:css('--brand'),'fill-opacity':.4,stroke:css('--mark'),'stroke-width':2.5},svg);
+  SEG[sel].sc.forEach((v,i)=>{const p=pt(i,v);const d=svgEl('circle',{class:'pop',style:`animation-delay:${400+i*70}ms`,cx:p[0],cy:p[1],r:5,fill:css('--mark'),stroke:css('--surface'),'stroke-width':2},svg);
+    d.addEventListener('pointermove',e=>showTip(`<b>${CRIT[i]}</b><br>${SEG[sel].n}: ${v} of 5`,e.clientX,e.clientY));d.addEventListener('pointerleave',hideTip)});
+  if(replay){SEEN.add('radar');svg.classList.add('draw')}else arm(c);
+  $('#radarLeg').innerHTML=`<span><i style="background:var(--brand)"></i>${SEG[sel].k}: ${SEG[sel].n}</span>`+(lead!==sel?`<span><i style="background:var(--lead)"></i>Leader: ${SEG[lead].k}: ${SEG[lead].n}</span>`:'');
+}
+function renderSegments(fromSlider){
+  renderSliders();renderPick();renderRank();renderTable();drawRadar(!fromSlider&&S.lastSeg!==S.seg&&S.lastSeg!==undefined);S.lastSeg=S.seg;renderTiles();
+  const g=SEG[S.seg];$('#radarTitle').textContent='Segment '+g.k+': '+g.n;
+  $('#segText').innerHTML=`${g.d}<br><b>Reading:</b> ${g.note}`;if(!fromSlider)fadeIn($('#segText'));
+}
+
+/* ---------- steps and sources ---------- */
+function renderSteps(){const w=$('#steps');w.innerHTML='';
+  STEPS.forEach((s,i)=>{const b=el('button',{class:'st','aria-pressed':S.step===i},`<div class="n">${s.n}</div><div class="t">${s.t}</div>`);b.onclick=()=>{S.step=i;renderSteps()};w.appendChild(b)});
+  const s=STEPS[S.step];fadeIn($('#stepText'));$('#stepText').innerHTML=`<b>${s.n}: ${s.t}</b><ul class="clean" style="margin-top:6px">${s.b.map(x=>`<li>${x}</li>`).join('')}</ul>`}
+SRC.forEach(([t,u])=>{const li=el('li');const a=el('a',{href:u,target:'_blank',rel:'noopener'},t);li.appendChild(a);$('#srcList').appendChild(li)});
+
+/* ---------- boot ---------- */
+(function(){const dv=[['sprig'],['lotus'],['sprig'],['lotus'],['sprig']];
+  [...document.querySelectorAll('main > section')].slice(1).forEach((sec,i)=>{const d=document.createElement('div');d.className='divider';d.setAttribute('aria-hidden','true');
+    d.innerHTML='<svg viewBox="0 0 64 64"><use href="#sym-'+dv[i%5][0]+'"/></svg>';sec.parentNode.insertBefore(d,sec)});
+  const r=document.querySelector('#reco .card');if(r)r.classList.add('wm')})();
+
+function drawCharts(){drawGdp();drawGrowth();drawMatrix();drawCul();drawRadar()}
+renderTiles();renderRiskLinks();renderCul();renderSegments();renderSteps();drawCharts();
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawCharts,120)});
+matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',()=>setTimeout(drawCharts,50));
+new MutationObserver(()=>setTimeout(drawCharts,50)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
+
+</body></html>
